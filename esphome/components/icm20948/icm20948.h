@@ -4,7 +4,6 @@
 #include "esphome/core/preferences.h"
 #include "esphome/components/i2c/i2c.h"
 #include "esphome/components/sensor/sensor.h"
-#include "esphome/components/binary_sensor/binary_sensor.h"
 
 namespace esphome {
 namespace icm20948 {
@@ -44,9 +43,7 @@ class ICM20948 : public PollingComponent, public i2c::I2CDevice {
 
   void set_pitch_sensor(sensor::Sensor *s) { this->pitch_sensor_ = s; }
   void set_roll_sensor(sensor::Sensor *s) { this->roll_sensor_ = s; }
-  void set_level_sensor(binary_sensor::BinarySensor *s) { this->level_sensor_ = s; }
   void set_accel_range(AccelRange r) { this->accel_range_ = r; }
-  void set_level_threshold(float deg) { this->level_threshold_ = deg; }
 
   // Call these from a YAML lambda (e.g. a template button):
   //   id(imu).calibrate();          -> store current orientation as "level"
@@ -62,10 +59,8 @@ class ICM20948 : public PollingComponent, public i2c::I2CDevice {
 
   sensor::Sensor *pitch_sensor_{nullptr};
   sensor::Sensor *roll_sensor_{nullptr};
-  binary_sensor::BinarySensor *level_sensor_{nullptr};
 
   AccelRange accel_range_{ACCEL_RANGE_2G};
-  float level_threshold_{1.5f};
 
   float pitch_offset_{0.0f};
   float roll_offset_{0.0f};

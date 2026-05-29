@@ -130,10 +130,6 @@ void ICM20948::update() {
     this->pitch_sensor_->publish_state(pitch);
   if (this->roll_sensor_ != nullptr)
     this->roll_sensor_->publish_state(roll);
-  if (this->level_sensor_ != nullptr) {
-    bool level = (fabsf(pitch) <= this->level_threshold_) && (fabsf(roll) <= this->level_threshold_);
-    this->level_sensor_->publish_state(level);
-  }
 }
 
 void ICM20948::calibrate() {
@@ -164,11 +160,9 @@ void ICM20948::dump_config() {
   LOG_I2C_DEVICE(this);
   LOG_UPDATE_INTERVAL(this);
   ESP_LOGCONFIG(TAG, "  Accel range: +/-%dG", 2 << this->accel_range_);
-  ESP_LOGCONFIG(TAG, "  Level threshold: %.2f deg", this->level_threshold_);
   ESP_LOGCONFIG(TAG, "  Calibration offsets: pitch=%.2f roll=%.2f", this->pitch_offset_, this->roll_offset_);
   LOG_SENSOR("  ", "Pitch", this->pitch_sensor_);
   LOG_SENSOR("  ", "Roll", this->roll_sensor_);
-  LOG_BINARY_SENSOR("  ", "Level", this->level_sensor_);
   if (this->is_failed()) {
     ESP_LOGE(TAG, "  Communication with ICM20948 failed!");
   }

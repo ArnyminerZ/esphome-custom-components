@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import i2c, sensor, binary_sensor
+from esphome.components import i2c, sensor
 from esphome.const import (
     CONF_ID,
     STATE_CLASS_MEASUREMENT,
@@ -8,17 +8,14 @@ from esphome.const import (
     ICON_SCREEN_ROTATION,
 )
 
-# Change this to your own GitHub handle (optional, only used if you publish the repo)
-CODEOWNERS = ["@your_github_handle"]
+CODEOWNERS = ["@ArnyminerZ"]
 
 DEPENDENCIES = ["i2c"]
-AUTO_LOAD = ["sensor", "binary_sensor"]
+AUTO_LOAD = ["sensor"]
 
 CONF_PITCH = "pitch"
 CONF_ROLL = "roll"
-CONF_LEVEL = "level"
 CONF_ACCEL_RANGE = "accel_range"
-CONF_LEVEL_THRESHOLD = "level_threshold"
 
 icm20948_ns = cg.esphome_ns.namespace("icm20948")
 ICM20948 = icm20948_ns.class_("ICM20948", cg.PollingComponent, i2c.I2CDevice)
@@ -44,13 +41,8 @@ CONFIG_SCHEMA = (
             cv.GenerateID(): cv.declare_id(ICM20948),
             cv.Optional(CONF_PITCH): angle_schema,
             cv.Optional(CONF_ROLL): angle_schema,
-            cv.Optional(CONF_LEVEL): binary_sensor.binary_sensor_schema(),
             cv.Optional(CONF_ACCEL_RANGE, default="2G"): cv.enum(
                 ACCEL_RANGES, upper=True
-            ),
-            # Max absolute pitch/roll (degrees) still considered "level".
-            cv.Optional(CONF_LEVEL_THRESHOLD, default=1.5): cv.float_range(
-                min=0.1, max=45.0
             ),
         }
     )
@@ -65,7 +57,6 @@ async def to_code(config):
     await i2c.register_i2c_device(var, config)
 
     cg.add(var.set_accel_range(config[CONF_ACCEL_RANGE]))
-    cg.add(var.set_level_threshold(config[CONF_LEVEL_THRESHOLD]))
 
     if CONF_PITCH in config:
         sens = await sensor.new_sensor(config[CONF_PITCH])
@@ -73,6 +64,3 @@ async def to_code(config):
     if CONF_ROLL in config:
         sens = await sensor.new_sensor(config[CONF_ROLL])
         cg.add(var.set_roll_sensor(sens))
-    if CONF_LEVEL in config:
-        bs = await binary_sensor.new_binary_sensor(config[CONF_LEVEL])
-        cg.add(var.set_level_sensor(bs))
